@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>مين القاتل؟</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#F2E9D8;
+    --stage:#0E0A08;
+    --stage-2:#1B1210;
+    --velvet:#5C1A1A;
+    --velvet-deep:#3A1010;
+    --gold:#C9A227;
+    --gold-soft:#E4C560;
+    --plum:#2A1830;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% -10%, rgba(228,197,96,0.10), transparent 60%),
+      radial-gradient(ellipse 90% 70% at 50% 110%, rgba(90,20,20,0.35), transparent 60%),
+      var(--stage);
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 18px;
+    overflow-x:hidden;
+  }
+
+  .frame{
+    width:100%;
+    max-width:420px;
+    position:relative;
+  }
+
+  .frame::before, .frame::after{
+    content:"";
+    position:absolute;
+    left:0; right:0;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold-soft) 50%, var(--gold) 80%, transparent);
+    opacity:0.8;
+  }
+  .frame::before{ top:-14px; }
+  .frame::after{ bottom:-14px; }
+
+  .card{
+    background:linear-gradient(180deg, var(--stage-2), #140E0C 70%);
+    border:1px solid rgba(201,162,39,0.35);
+    border-radius:6px;
+    padding:34px 26px 30px;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.4),
+      0 30px 60px -20px rgba(0,0,0,0.7),
+      inset 0 0 60px rgba(92,26,26,0.12);
+    text-align:center;
+    position:relative;
+  }
+
+  .eyebrow{
+    color:var(--gold-soft);
+    font-size:13px;
+    letter-spacing:1px;
+    margin-bottom:10px;
+    opacity:0.85;
+  }
+
+  h1{
+    font-family:'Amiri', serif;
+    font-weight:700;
+    font-size:34px;
+    line-height:1.25;
+    margin:0 0 26px;
+    color:var(--ink);
+    text-shadow:0 2px 18px rgba(0,0,0,0.5);
+  }
+
+  .ring-wrap{
+    position:relative;
+    width:132px;
+    height:132px;
+    margin:0 auto 28px;
+  }
+  .ring-wrap svg{ transform:rotate(-90deg); width:100%; height:100%; }
+  .ring-track{ fill:none; stroke:rgba(255,255,255,0.08); stroke-width:6; }
+  .ring-progress{
+    fill:none;
+    stroke:var(--gold);
+    stroke-width:6;
+    stroke-linecap:round;
+    transition:stroke 0.4s ease;
+  }
+  .ring-time{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:1px;
+  }
+  .ring-wrap.low .ring-progress{ stroke:#B23A3A; }
+  .ring-wrap.low .ring-time{ color:#E68A8A; }
+
+  .choices{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .suspect{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 18px;
+    background:rgba(92,26,26,0.14);
+    border:1px solid rgba(201,162,39,0.25);
+    border-radius:4px;
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    font-size:18px;
+    font-weight:500;
+    cursor:pointer;
+    text-align:right;
+    transition:transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+  .suspect:active{ transform:scale(0.98); }
+  .suspect:not(:disabled):hover{
+    background:rgba(92,26,26,0.28);
+    border-color:var(--gold);
+  }
+  .suspect .mark{
+    flex:0 0 auto;
+    width:34px; height:34px;
+    border-radius:50%;
+    border:1.5px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Amiri', serif;
+    font-size:19px;
+    color:var(--gold-soft);
+  }
+  .suspect.chosen{
+    background:rgba(201,162,39,0.16);
+    border-color:var(--gold);
+  }
+  .suspect.chosen .mark{ background:var(--gold); color:#241A08; }
+  .suspect:disabled{
+    cursor:default;
+    opacity:0.45;
+  }
+  .suspect:disabled.chosen{ opacity:1; }
+
+  .result{
+    display:none;
+    padding:8px 4px 4px;
+  }
+  .result.show{ display:block; }
+  .choices.hidden{ display:none; }
+
+  .check{
+    font-size:19px;
+    font-weight:700;
+    color:var(--gold-soft);
+    margin-bottom:16px;
+  }
+  .wait-line{
+    font-family:'Amiri', serif;
+    font-size:22px;
+    line-height:1.7;
+    color:var(--ink);
+  }
+  .wait-line + .wait-line{ margin-top:2px; color:var(--gold-soft); }
+
+  .picked-name{
+    display:inline-block;
+    margin-top:18px;
+    padding:6px 16px;
+    border:1px solid rgba(201,162,39,0.35);
+    border-radius:999px;
+    font-size:14px;
+    color:rgba(242,233,216,0.65);
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="card">
+    <div class="eyebrow">التحقيق جارٍ</div>
+    <h1>مين القاتل؟</h1>
+
+    <div class="ring-wrap" id="ringWrap">
+      <svg viewBox="0 0 132 132">
+        <circle class="ring-track" cx="66" cy="66" r="58"></circle>
+        <circle class="ring-progress" id="ringProgress" cx="66" cy="66" r="58"
+                stroke-dasharray="364.4" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="ring-time" id="ringTime">1:30</div>
+    </div>
+
+    <div class="choices" id="choices">
+      <button class="suspect" data-name="Medhat"><span class="mark">؟</span><span>Medhat</span></button>
+      <button class="suspect" data-name="Filo"><span class="mark">؟</span><span>Filo</span></button>
+      <button class="suspect" data-name="Michael"><span class="mark">؟</span><span>Michael</span></button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="check" id="checkLine">تم تسجيل اختيارك ✅</div>
+      <div class="wait-line">استنى النتيجة في المسرحية 🎭</div>
+      <div class="wait-line">وافتكر… مين القاتل؟</div>
+      <div class="picked-name" id="pickedName" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TOTAL = 90;
+  let remaining = TOTAL;
+  let locked = false;
+  let timerId = null;
+
+  const ringWrap = document.getElementById('ringWrap');
+  const ringProgress = document.getElementById('ringProgress');
+  const ringTime = document.getElementById('ringTime');
+  const choicesEl = document.getElementById('choices');
+  const resultEl = document.getElementById('result');
+  const checkLine = document.getElementById('checkLine');
+  const pickedName = document.getElementById('pickedName');
+  const CIRC = 364.4;
+
+  function render(){
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    ringTime.textContent = m + ':' + String(s).padStart(2,'0');
+    const frac = remaining / TOTAL;
+    ringProgress.setAttribute('stroke-dashoffset', String(CIRC * (1 - frac)));
+    ringWrap.classList.toggle('low', remaining <= 20);
+  }
+
+  function tick(){
+    if(locked){ clearInterval(timerId); return; }
+    remaining--;
+    if(remaining <= 0){
+      remaining = 0;
+      render();
+      clearInterval(timerId);
+      finish(null, true);
+      return;
+    }
+    render();
+  }
+
+  function finish(name, timedOut){
+    locked = true;
+    clearInterval(timerId);
+    document.querySelectorAll('.suspect').forEach(btn => btn.disabled = true);
+
+    if(timedOut){
+      checkLine.textContent = 'خلص الوقت ⏳';
+    } else {
+      const btn = document.querySelector('.suspect[data-name="'+name+'"]');
+      if(btn) btn.classList.add('chosen');
+      checkLine.textContent = 'تم تسجيل اختيارك ✅';
+      pickedName.textContent = 'اخترت: ' + name;
+      pickedName.style.display = 'inline-block';
+    }
+    choicesEl.classList.add('hidden');
+    resultEl.classList.add('show');
+  }
+
+  document.querySelectorAll('.suspect').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(locked) return;
+      finish(btn.getAttribute('data-name'), false);
+    });
+  });
+
+  render();
+  timerId = setInterval(tick, 1000);
+</script>
+
+</body>
+</html>
